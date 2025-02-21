@@ -22,7 +22,7 @@ def load_data():
         }
     try:
         with open(CART_FILE, "r") as f:
-            st.session_state.cart = json.load(f)
+            st.session_state.cart = json.load(f) 
     except FileNotFoundError:
         st.session_state.cart = []
     
