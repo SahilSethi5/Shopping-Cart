@@ -79,7 +79,7 @@ def add_product(name, price):
     if name and price > 0:
         st.session_state.products[name] = price
         save_data()
-        st.success(f"{name} added at ${price}")
+        st.success(f"{name} added at Rs {price}")
 
 # Function to remove a product
 def remove_product(name):
@@ -102,15 +102,27 @@ remove_product_name = st.sidebar.selectbox("Select a product to remove", options
 if st.sidebar.button("Remove Product"):
     remove_product(remove_product_name)
 
-# Display products in a grid
+# Display products in a grid with volume selection
 st.header("Available Products")
-cols = cycle(st.columns(3))  # 3-column layout
 for product, price in st.session_state.products.items():
-    col = next(cols)
-    with col:
-        if st.button(f"{product} - Rs {price}"):
-            add_to_cart(product)
-            st.success(f"{product} added to cart!")
+    # Extracting base product name and volume
+    base_product_name = ' '.join(product.split()[:-2])  # E.g., "Coconut Oil"
+    volume = product.split()[-2] + ' ' + product.split()[-1]  # E.g., "1 l", "500 ml"
+
+    # Display product with dropdown for volume selection
+    if base_product_name not in st.session_state:
+        st.session_state[base_product_name] = []
+
+    # Add the volume to the dropdown options if not already added
+    if volume not in st.session_state[base_product_name]:
+        st.session_state[base_product_name].append(volume)
+
+    selected_volume = st.selectbox(f"Select volume for {base_product_name}", options=st.session_state[base_product_name], key=base_product_name)
+
+    # Button to add selected volume to cart
+    if st.button(f"Add {selected_volume} of {base_product_name} - Rs {price}", key=product):
+        add_to_cart(product)
+        st.success(f"{selected_volume} of {base_product_name} added to cart!")
 
 # Show cart items
 st.header("🛍 Your Shopping Cart")
