@@ -14,29 +14,29 @@ def load_data():
             st.session_state.products = json.load(f)
     except FileNotFoundError:
         st.session_state.products = {
-            "Coconut Oil": {1000: 809, 500: 438, 200: 195},
-            "Safflower Oil": {1000: 532, 500: 299},
-            "Sunflower Oil": {1000: 410, 500: 238},
-            "Groundnut Oil": {1000: 483, 500: 288},
-            "Mustard Oil": {1000: 510, 500: 266, 200: 135},
-            "A2 Cow Ghee": {1000: 2162, 500: 1129, 200: 594},
-            "Flaxseed Oil": {500: 355, 200: 162},
-            "Almond Oil": {500: 1186, 200: 495, 100: 264},
-            "Castor Oil": {500: 261, 200: 124, 100: 79},
-            "Kalonji Oil": {500: 1087, 200: 455, 100: 244},
-            "Virgin Coconut Oil": {1000: 809, 500: 438, 200: 195},
-            "Turmeric": {1000: 512, 500: 268, 250: 142},
-            "Honey": {1000: 736, 500: 428, 250: 295},
-            "Jaggery cubes": {1000: 152, 500: 91},
-            "Jaggery powder": {1000: 194, 500: 104},
-            "Brown Sugar": {1000: 225}
+            "Coconut Oil 1 l": 809, "Coconut Oil 500 ml": 438, "Coconut Oil 200 ml": 195,
+            "Safflower Oil 1 l": 532, "Safflower Oil 500 ml": 299,
+            "Sunflower Oil 1 l": 410, "Sunflower Oil 500 ml": 238,
+            "Groundnut Oil 1 l": 483, "Groundnut Oil 500 ml": 288,
+            "Mustard Oil 1 l": 510, "Mustard Oil 500 ml": 266, "Mustard Oil 200 ml": 135,
+            "A2 Cow Ghee 1 kg": 2162, "A2 Cow Ghee 500 g": 1129, "A2 Cow Ghee 200 g": 594,
+            "Flaxseed Oil 500 ml": 355, "Flaxseed Oil 200 ml": 162,
+            "Almond Oil 500 ml": 1186, "Almond Oil 200 ml": 495, "Almond Oil 100 ml": 264,
+            "Castor Oil 500 ml": 261, "Castor Oil 200 ml": 124, "Castor Oil 100 ml": 79,
+            "Kalonji Oil 500 ml": 1087, "Kalonji Oil 200 ml": 455, "Kalonji Oil 100 ml": 244,
+            "Virgin Coconut Oil 1 l": 809, "Virgin Coconut Oil 500 ml": 438, "Virgin Coconut Oil 200 ml": 195,
+            "Turmeric 1 kg": 512, "Turmeric 500 g": 268, "Turmeric 250 g": 142,
+            "Honey 1 kg": 736, "Honey 500 g": 428, "Honey 250 g": 295,
+            "Jaggery cubes 1 kg": 152, "Jaggery cubes 500 g": 91,
+            "Jaggery powder 1 kg": 194, "Jaggery powder 500 g": 104,
+            "Brown Sugar 1 kg": 225
         }
     try:
         with open(CART_FILE, "r") as f:
-            st.session_state.cart = json.load(f)
+            st.session_state.cart = json.load(f) 
     except FileNotFoundError:
         st.session_state.cart = []
-
+    
 # Save data to files
 def save_data():
     with open(PRODUCTS_FILE, "w") as f:
@@ -51,19 +51,19 @@ if 'discount' not in st.session_state:
     st.session_state.discount = False
 
 # Function to add item to cart
-def add_to_cart(product, volume):
-    st.session_state.cart.append((product, volume))
+def add_to_cart(product):
+    st.session_state.cart.append(product)
     save_data()
 
 # Function to remove item from cart
-def remove_from_cart(item):
-    if item in st.session_state.cart:
-        st.session_state.cart.remove(item)
+def remove_from_cart(product):
+    if product in st.session_state.cart:
+        st.session_state.cart.remove(product)
         save_data()
 
 # Function to calculate total
 def calculate_total(cart, apply_discount=False):
-    subtotal = sum(st.session_state.products[item][volume] for item, volume in cart)
+    subtotal = sum(st.session_state.products[item] for item in cart)
     discount = subtotal * 0.1 if apply_discount else 0
     total = subtotal - discount
     return subtotal, discount, total
@@ -74,10 +74,24 @@ def reset_cart():
     st.session_state.discount = False
     save_data()
 
+# Function to add new product
+def add_product(name, price):
+    if name and price > 0:
+        st.session_state.products[name] = price
+        save_data()
+        st.success(f"{name} added at ${price}")
+
+# Function to remove a product
+def remove_product(name):
+    if name in st.session_state.products:
+        del st.session_state.products[name]
+        save_data()
+        st.success(f"{name} removed from products")
+
 # Streamlit app layout
 st.title("🛒 Shopping Cart System")
 
-# Sidebar for managing products (add/remove)
+# Sidebar for adding/removing products
 st.sidebar.header("Manage Products")
 new_product_name = st.sidebar.text_input("Product Name")
 new_product_price = st.sidebar.number_input("Price", min_value=0.01, format="%.2f")
@@ -88,29 +102,27 @@ remove_product_name = st.sidebar.selectbox("Select a product to remove", options
 if st.sidebar.button("Remove Product"):
     remove_product(remove_product_name)
 
-# Display products in a grid with volume selection
+# Display products in a grid
 st.header("Available Products")
 cols = cycle(st.columns(3))  # 3-column layout
-for product, volumes in st.session_state.products.items():
+for product, price in st.session_state.products.items():
     col = next(cols)
     with col:
-        volume = st.selectbox(f"Select volume for {product}", options=list(volumes.keys()), key=product)
-        price = volumes[volume]
-        if st.button(f"{product} - Rs {price} ({volume} ml)"):
-            add_to_cart(product, volume)
-            st.success(f"{product} ({volume} ml) added to cart!")
+        if st.button(f"{product} - Rs {price}"):
+            add_to_cart(product)
+            st.success(f"{product} added to cart!")
 
 # Show cart items
 st.header("🛍 Your Shopping Cart")
 if st.session_state.cart:
-    cart_df = pd.DataFrame(st.session_state.cart, columns=["Product", "Volume (ml)"])
+    cart_df = pd.DataFrame(st.session_state.cart, columns=["Items"])
     st.write(cart_df)
 
     # Remove item dropdown
     remove_item = st.selectbox("Select an item to remove", options=st.session_state.cart, index=0)
     if st.button("Remove Item"):
         remove_from_cart(remove_item)
-        st.success(f"{remove_item[0]} ({remove_item[1]} ml) removed from cart!")
+        st.success(f"{remove_item} removed from cart!")
 
     # Discount checkbox
     if st.checkbox("Apply 10% Discount"):
@@ -120,20 +132,20 @@ if st.session_state.cart:
 
     # Calculate totals
     subtotal, discount, total_amount = calculate_total(st.session_state.cart, st.session_state.discount)
-
+    
     # Show bill
     bill = "Bill\n"
     item_counts = {item: st.session_state.cart.count(item) for item in set(st.session_state.cart)}
     for item, count in item_counts.items():
-        bill += f"- {item[0]} ({item[1]} ml) x{count}: Rs {st.session_state.products[item[0]][item[1]] * count}\n"
+        bill += f"- {item} x{count}: Rs {st.session_state.products[item] * count}\n"
     bill += f"\nSubtotal: Rs{subtotal:.2f}\nDiscount: -Rs{discount:.2f}\nTotal: Rs{total_amount:.2f}"
-
+    
     st.text_area("Final Bill", bill, height=200)
-
+    
     # Checkout button
     if st.button("Checkout"):
         st.success("✅ Checkout successful!")
-
+    
     # Reset cart button
     if st.button("Reset Cart"):
         reset_cart()
