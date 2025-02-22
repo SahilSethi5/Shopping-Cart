@@ -14,11 +14,22 @@ def load_data():
             st.session_state.products = json.load(f)
     except FileNotFoundError:
         st.session_state.products = {
-            "Laptop": 800.0, "Smartphone": 500.0, "Headphones": 50.0, "Keyboard": 30.0,
-            "Mouse": 25.0, "Monitor": 200.0, "USB Drive": 15.0, "External HDD": 100.0,
-            "Printer": 150.0, "Camera": 400.0, "Tablet": 350.0, "Speakers": 75.0,
-            "Smartwatch": 120.0, "Router": 60.0, "Charger": 20.0, "VR Headset": 250.0,
-            "Microphone": 80.0, "Graphics Card": 700.0, "Cooling Fan": 40.0, "Projector": 300.0
+            "Coconut Oil 1 l": 809, "Coconut Oil 500 ml": 438, "Coconut Oil 200 ml": 195,
+            "Safflower Oil 1 l": 532, "Safflower Oil 500 ml": 299,
+            "Sunflower Oil 1 l": 410, "Sunflower Oil 500 ml": 238,
+            "Groundnut Oil 1 l": 483, "Groundnut Oil 500 ml": 288,
+            "Mustard Oil 1 l": 510, "Mustard Oil 500 ml": 266, "Mustard Oil 200 ml": 135,
+            "A2 Cow Ghee 1 kg": 2162, "A2 Cow Ghee 500 g": 1129, "A2 Cow Ghee 200 g": 594,
+            "Flaxseed Oil 500 ml": 355, "Flaxseed Oil 200 ml": 162,
+            "Almond Oil 500 ml": 1186, "Almond Oil 200 ml": 495, "Almond Oil 100 ml": 264,
+            "Castor Oil 500 ml": 261, "Castor Oil 200 ml": 124, "Castor Oil 100 ml": 79,
+            "Kalonji Oil 500 ml": 1087, "Kalonji Oil 200 ml": 455, "Kalonji Oil 100 ml": 244,
+            "Virgin Coconut Oil 1 l": 809, "Virgin Coconut Oil 500 ml": 438, "Virgin Coconut Oil 200 ml": 195,
+            "Turmeric 1 kg": 512, "Turmeric 500 g": 268, "Turmeric 250 g": 142,
+            "Honey 1 kg": 736, "Honey 500 g": 428, "Honey 250 g": 295,
+            "Jaggery cubes 1 kg": 152, "Jaggery cubes 500 g": 91,
+            "Jaggery powder 1 kg": 194, "Jaggery powder 500 g": 104,
+            "Brown Sugar 1 kg": 225
         }
     try:
         with open(CART_FILE, "r") as f:
@@ -97,7 +108,7 @@ cols = cycle(st.columns(3))  # 3-column layout
 for product, price in st.session_state.products.items():
     col = next(cols)
     with col:
-        if st.button(f"{product} - ${price}"):
+        if st.button(f"{product} - Rs {price}"):
             add_to_cart(product)
             st.success(f"{product} added to cart!")
 
@@ -126,8 +137,8 @@ if st.session_state.cart:
     bill = "Bill\n"
     item_counts = {item: st.session_state.cart.count(item) for item in set(st.session_state.cart)}
     for item, count in item_counts.items():
-        bill += f"- {item} x{count}: ${st.session_state.products[item] * count}\n"
-    bill += f"\nSubtotal: ${subtotal:.2f}\nDiscount: -${discount:.2f}\nTotal: ${total_amount:.2f}"
+        bill += f"- {item} x{count}: Rs {st.session_state.products[item] * count}\n"
+    bill += f"\nSubtotal: Rs{subtotal:.2f}\nDiscount: -Rs{discount:.2f}\nTotal: Rs{total_amount:.2f}"
     
     st.text_area("Final Bill", bill, height=200)
     
