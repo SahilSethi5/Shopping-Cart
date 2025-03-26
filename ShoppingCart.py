@@ -141,6 +141,7 @@ if st.session_state.cart:
     bill += f"\nSubtotal: Rs{subtotal:.2f}\nDiscount: -Rs{discount:.2f}\nTotal: Rs{total_amount:.2f}"
     
     st.text_area("Final Bill", bill, height=200)
+
     
     # Checkout button
     if st.button("Checkout"):
